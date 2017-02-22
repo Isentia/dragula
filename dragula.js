@@ -5,6 +5,12 @@ var crossvent = require('crossvent');
 var classes = require('./classes');
 var doc = document;
 var documentElement = doc.documentElement;
+var _autoScrollingInterval; // reference to auto scrolling
+var alignX = null ;
+// A simple requestAnimationFrame polyfill
+var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame || window.msRequestAnimationFrame ||
+  window.oRequestAnimationFrame || function(callback){ setTimeout(callback, 1000 / 60); };
 
 function dragula (initialContainers, options) {
   var len = arguments.length;
@@ -218,6 +224,7 @@ function dragula (initialContainers, options) {
 
   function end () {
     if (!drake.dragging) {
+      cancelAnimationFrame(_autoScrollingInterval);
       return;
     }
     var item = _copy || _item;
@@ -252,6 +259,7 @@ function dragula (initialContainers, options) {
 
   function drop (item, target) {
     var parent = getParent(item);
+    alignX = null ;
     if (_copy && o.copySortSource && target === _source) {
       parent.removeChild(_item);
     }
@@ -303,6 +311,7 @@ function dragula (initialContainers, options) {
 
   function cleanup () {
     var item = _copy || _item;
+    cancelAnimationFrame(_autoScrollingInterval);
     ungrab();
     removeMirrorImage();
     if (item) {
@@ -355,16 +364,23 @@ function dragula (initialContainers, options) {
   }
 
   function drag (e) {
-    if (!_mirror) {
-      return;
-    }
+    if (!_mirror) { return; }
+    // For iframe. When dragging an item and mouse moves out of the iframe and
+    // mouseup, then decides to move back, the event will be 0 so we should
+    // just call cancel.
+    if (whichMouseButton(e) === 0) { cancel(); }
+
     e.preventDefault();
 
     var clientX = getCoord('clientX', e);
     var clientY = getCoord('clientY', e);
     var x = clientX - _offsetX;
     var y = clientY - _offsetY;
-
+    if(!alignX){
+      alignX = x  ;
+    }else{
+      x = alignX ;
+    }
     _mirror.style.left = x + 'px';
     _mirror.style.top = y + 'px';
 
@@ -409,6 +425,8 @@ function dragula (initialContainers, options) {
     function moved (type) { drake.emit(type, item, _lastDropTarget, _source); }
     function over () { if (changed) { moved('over'); } }
     function out () { if (_lastDropTarget) { moved('out'); } }
+
+    startScroll(_item, e);
   }
 
   function spillOver (el) {
@@ -605,4 +623,67 @@ function getCoord (coord, e) {
   return host[coord];
 }
 
+function getScrollContainer(node) {
+  if (node === null) { return null; }
+  if (node.scrollHeight > node.clientHeight) { return node; }
+
+  var REGEX_BODY_HTML = new RegExp('(body|html)', 'i');
+
+  if (!REGEX_BODY_HTML.test(node.parentNode.tagName)) { return getScrollContainer(node.parentNode); }
+
+  return null;
+}
+
+function startAutoScrolling(node, amount, direction) {
+  _autoScrollingInterval = raf(function() {
+    startAutoScrolling(node, amount, direction);
+  });
+  return node[direction] += (amount * 0.25);
+}
+
+function startScroll(item, event) {
+  var scrollEdge = 100;
+  var scrollSpeed = 100;
+  var scrollContainer = getScrollContainer(item);
+
+  cancelAnimationFrame(_autoScrollingInterval);
+
+  // If a container contains the list that is scrollable
+  scrollContainer = null ;
+  if (scrollContainer) {
+
+    // Scrolling vertically
+    if (event.pageY - getOffset(scrollContainer).top < scrollEdge) {
+      startAutoScrolling(scrollContainer, -scrollSpeed, 'scrollTop');
+    } else if ((getOffset(scrollContainer).top + scrollContainer.getBoundingClientRect().height) - event.pageY < scrollEdge) {
+      startAutoScrolling(scrollContainer, scrollSpeed, 'scrollTop');
+    }
+
+    // Scrolling horizontally
+    if (event.pageX - scrollContainer.getBoundingClientRect().left < scrollEdge) {
+      startAutoScrolling(scrollContainer, -scrollSpeed, 'scrollLeft');
+    } else if ((getOffset(scrollContainer).left + scrollContainer.getBoundingClientRect().width) - event.pageX < scrollEdge) {
+      startAutoScrolling(scrollContainer, scrollSpeed, 'scrollLeft');
+    }
+
+  // If the window contains the list
+  } else {
+
+    // Scrolling vertically
+    if ((event.pageY - window.scrollY) < scrollEdge ) {
+      startAutoScrolling(document.body, -scrollSpeed, 'scrollTop');
+    } else if ((window.innerHeight - (event.pageY - window.scrollY)) < scrollEdge) {
+      startAutoScrolling(document.body, scrollSpeed, 'scrollTop');
+    }
+
+    // Scrolling horizontally
+    if ((event.pageX - window.scrollX) < scrollEdge) {
+      startAutoScrolling(document.body, -scrollSpeed, 'scrollLeft');
+    } else if ((window.innerWidth - (event.pageX - window.scrollX)) < scrollEdge) {
+      startAutoScrolling(document.body, scrollSpeed, 'scrollLeft');
+    }
+  }
+}
+
 module.exports = dragula;
+
