@@ -13,6 +13,7 @@ Framework support includes vanilla JavaScript, Angular, and React.
 - Official [React bridge][9] for `dragula` [_(demo)_][11]
 
 # Demo
+This is the repo for iSentia.
 
 [![demo.png][1]][2]
 
