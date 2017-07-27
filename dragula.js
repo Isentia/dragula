@@ -646,7 +646,7 @@ function startAutoScrolling(node, amount, direction) {
 
 function startScroll(item, event) {
   var scrollEdge = 100;
-  var scrollSpeed = 100;
+  var scrollSpeed = 25;
   var scrollContainer = getScrollContainer(item);
 
   cancelAnimationFrame(_autoScrollingInterval);
