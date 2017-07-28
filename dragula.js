@@ -637,10 +637,17 @@ function getScrollContainer(node) {
   return null;
 }
 
-function startAutoScrolling(node, amount, direction) {
+function startAutoScrolling(node, amount, direction, limit) {
+  if (limit) {
+    if (amount < 0 && node[direction] < (limit.top - window.innerHeight / 2)) {
+      return;
+    }
+  }
+
   _autoScrollingInterval = raf(function() {
-    startAutoScrolling(node, amount, direction);
+    startAutoScrolling(node, amount, direction, limit);
   });
+
   return node[direction] += (amount * 0.25);
 }
 
@@ -657,7 +664,7 @@ function startScroll(item, event) {
 
     // Scrolling vertically
     if (event.pageY - getOffset(scrollContainer).top < scrollEdge) {
-      startAutoScrolling(scrollContainer, -scrollSpeed, 'scrollTop');
+      startAutoScrolling(scrollContainer, -scrollSpeed, 'scrollTop', $(parent).offset());
     } else if ((getOffset(scrollContainer).top + scrollContainer.getBoundingClientRect().height) - event.pageY < scrollEdge) {
       startAutoScrolling(scrollContainer, scrollSpeed, 'scrollTop');
     }
@@ -674,7 +681,7 @@ function startScroll(item, event) {
 
     // Scrolling vertically
     if ((event.pageY - window.scrollY) < scrollEdge ) {
-      startAutoScrolling(document.body, -scrollSpeed, 'scrollTop');
+      startAutoScrolling(document.body, -scrollSpeed, 'scrollTop', $(parent).offset());
     } else if ((window.innerHeight - (event.pageY - window.scrollY)) < scrollEdge) {
       startAutoScrolling(document.body, scrollSpeed, 'scrollTop');
     }
