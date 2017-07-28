@@ -429,7 +429,7 @@ function dragula (initialContainers, options) {
     function over () { if (changed) { moved('over'); } }
     function out () { if (_lastDropTarget) { moved('out'); } }
 
-    startScroll(_item, e);
+    startScroll(_item, e, parent);
   }
 
   function spillOver (el) {
@@ -651,7 +651,7 @@ function startAutoScrolling(node, amount, direction, limit) {
   return node[direction] += (amount * 0.25);
 }
 
-function startScroll(item, event) {
+function startScroll(item, ev, parentent, parent) {
   var scrollEdge = 100;
   var scrollSpeed = 25;
   var scrollContainer = getScrollContainer(item);
