@@ -651,7 +651,7 @@ function startAutoScrolling(node, amount, direction, limit) {
   return node[direction] += (amount * 0.25);
 }
 
-function startScroll(item, ev, parentent, parent) {
+function startScroll(item, ev, parent) {
   var scrollEdge = 100;
   var scrollSpeed = 25;
   var scrollContainer = getScrollContainer(item);
