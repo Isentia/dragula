@@ -638,8 +638,10 @@ function getScrollContainer(node) {
 }
 
 function startAutoScrolling(node, amount, direction, limit) {
+  var el = $(node || 'html,body');
+
   if (limit) {
-    if (amount < 0 && node[direction] < (limit.top - window.innerHeight / 2)) {
+    if (amount < 0 && el[direction]() < (limit.top - window.innerHeight / 2)) {
       return;
     }
   }
@@ -648,7 +650,7 @@ function startAutoScrolling(node, amount, direction, limit) {
     startAutoScrolling(node, amount, direction, limit);
   });
 
-  return node[direction] += (amount * 0.25);
+  return el[direction](el[direction]() + (amount * 0.25));
 }
 
 function startScroll(item, ev, parent) {
@@ -681,19 +683,18 @@ function startScroll(item, ev, parent) {
 
     // Scrolling vertically
     if ((event.pageY - window.scrollY) < scrollEdge ) {
-      startAutoScrolling(document.body, -scrollSpeed, 'scrollTop', $(parent).offset());
+      startAutoScrolling(null, -scrollSpeed, 'scrollTop', $(parent).offset());
     } else if ((window.innerHeight - (event.pageY - window.scrollY)) < scrollEdge) {
-      startAutoScrolling(document.body, scrollSpeed, 'scrollTop');
+      startAutoScrolling(null, scrollSpeed, 'scrollTop');
     }
 
     // Scrolling horizontally
     if ((event.pageX - window.scrollX) < scrollEdge) {
-      startAutoScrolling(document.body, -scrollSpeed, 'scrollLeft');
+      startAutoScrolling(null, -scrollSpeed, 'scrollLeft');
     } else if ((window.innerWidth - (event.pageX - window.scrollX)) < scrollEdge) {
-      startAutoScrolling(document.body, scrollSpeed, 'scrollLeft');
+      startAutoScrolling(null, scrollSpeed, 'scrollLeft');
     }
   }
 }
 
 module.exports = dragula;
-
