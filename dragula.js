@@ -654,8 +654,10 @@ function startAutoScrolling(node, amount, direction, limit) {
 }
 
 function startScroll(item, ev, parent) {
+
   var scrollEdge = 100;
   var scrollSpeed = 25;
+  var marginTop = getAllMarginTop();
   var scrollContainer = getScrollContainer(item);
 
   cancelAnimationFrame(_autoScrollingInterval);
@@ -680,9 +682,9 @@ function startScroll(item, ev, parent) {
 
   // If the window contains the list
   } else {
-
+    
     // Scrolling vertically
-    if ((event.pageY - window.scrollY) < scrollEdge ) {
+    if ((event.pageY - window.scrollY) < marginTop + scrollEdge ) {
       startAutoScrolling(null, -scrollSpeed, 'scrollTop', $(parent).offset());
     } else if ((window.innerHeight - (event.pageY - window.scrollY)) < scrollEdge) {
       startAutoScrolling(null, scrollSpeed, 'scrollTop');
@@ -695,6 +697,16 @@ function startScroll(item, ev, parent) {
       startAutoScrolling(null, scrollSpeed, 'scrollLeft');
     }
   }
+}
+
+function getAllMarginTop(el) {
+  var top = 0;
+
+  $('.dragula-fixed-header').each(function(idx, el) {
+    top += $(el).outerHeight();
+  });
+
+  return top;
 }
 
 module.exports = dragula;
