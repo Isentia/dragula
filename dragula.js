@@ -667,33 +667,33 @@ function startScroll(item, ev, parent) {
   if (scrollContainer) {
 
     // Scrolling vertically
-    if (event.pageY - getOffset(scrollContainer).top < scrollEdge) {
+    if (ev.pageY - getOffset(scrollContainer).top < scrollEdge) {
       startAutoScrolling(scrollContainer, -scrollSpeed, 'scrollTop', $(parent).offset());
-    } else if ((getOffset(scrollContainer).top + scrollContainer.getBoundingClientRect().height) - event.pageY < scrollEdge) {
+    } else if ((getOffset(scrollContainer).top + scrollContainer.getBoundingClientRect().height) - ev.pageY < scrollEdge) {
       startAutoScrolling(scrollContainer, scrollSpeed, 'scrollTop');
     }
 
     // Scrolling horizontally
-    if (event.pageX - scrollContainer.getBoundingClientRect().left < scrollEdge) {
+    if (ev.pageX - scrollContainer.getBoundingClientRect().left < scrollEdge) {
       startAutoScrolling(scrollContainer, -scrollSpeed, 'scrollLeft');
-    } else if ((getOffset(scrollContainer).left + scrollContainer.getBoundingClientRect().width) - event.pageX < scrollEdge) {
+    } else if ((getOffset(scrollContainer).left + scrollContainer.getBoundingClientRect().width) - ev.pageX < scrollEdge) {
       startAutoScrolling(scrollContainer, scrollSpeed, 'scrollLeft');
     }
 
   // If the window contains the list
   } else {
-    
+
     // Scrolling vertically
-    if ((event.pageY - window.scrollY) < marginTop + scrollEdge ) {
+    if ((ev.pageY - window.pageYOffset) < marginTop + scrollEdge ) {
       startAutoScrolling(null, -scrollSpeed, 'scrollTop', $(parent).offset());
-    } else if ((window.innerHeight - (event.pageY - window.scrollY)) < scrollEdge) {
+    } else if ((window.innerHeight - (ev.pageY - window.pageYOffset)) < scrollEdge) {
       startAutoScrolling(null, scrollSpeed, 'scrollTop');
     }
 
     // Scrolling horizontally
-    if ((event.pageX - window.scrollX) < scrollEdge) {
+    if ((ev.pageX - window.pageXOffset) < scrollEdge) {
       startAutoScrolling(null, -scrollSpeed, 'scrollLeft');
-    } else if ((window.innerWidth - (event.pageX - window.scrollX)) < scrollEdge) {
+    } else if ((window.innerWidth - (ev.pageX - window.pageXOffset)) < scrollEdge) {
       startAutoScrolling(null, scrollSpeed, 'scrollLeft');
     }
   }
