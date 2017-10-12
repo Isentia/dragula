@@ -640,8 +640,10 @@ function getScrollContainer(node) {
 function startAutoScrolling(node, amount, direction, limit) {
   var el = $(node || 'html,body');
 
+  var val = node ? el[direction]() : getWindowsScroll(el, direction);
+
   if (limit) {
-    if (amount < 0 && el[direction]() < (limit.top - window.innerHeight / 2)) {
+    if (amount < 0 && val < (limit.top - window.innerHeight / 2)) {
       return;
     }
   }
@@ -650,7 +652,19 @@ function startAutoScrolling(node, amount, direction, limit) {
     startAutoScrolling(node, amount, direction, limit);
   });
 
-  return el[direction](el[direction]() + (amount * 0.25));
+  return el[direction](val + (amount * 0.25));
+}
+
+function getWindowsScroll(el, direction) {
+  var x = 0;
+
+  el.each(function(idx, it) {
+    var v = $(it)[direction]();
+
+    if (v > x) x = v;
+  });
+
+  return x;
 }
 
 function startScroll(item, ev, parent) {
@@ -684,7 +698,7 @@ function startScroll(item, ev, parent) {
   } else {
 
     // Scrolling vertically
-    if ((ev.pageY - window.pageYOffset) < marginTop + scrollEdge ) {
+    if ((ev.pageY - window.pageYOffset) < (marginTop + scrollEdge) ) {
       startAutoScrolling(null, -scrollSpeed, 'scrollTop', $(parent).offset());
     } else if ((window.innerHeight - (ev.pageY - window.pageYOffset)) < scrollEdge) {
       startAutoScrolling(null, scrollSpeed, 'scrollTop');
